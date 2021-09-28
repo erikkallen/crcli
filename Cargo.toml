@@ -1,0 +1,14 @@
+[package]
+name = "crcli"
+version = "0.1.0"
+authors = ["Erik Kallen <info@erikkallen.nl>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+clap = "3.0.0-beta.4"
+hex = "0.4.3"
+crc-any = "2.4.0"
+strum = "0.21"
+strum_macros = "0.21"
