@@ -2,6 +2,8 @@
 
 Commandline crc calculator
 
+**Work in progress**
+
 Features:
 
 - Calculate any type of crc for files, hex strings, text
