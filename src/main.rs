@@ -1,5 +1,5 @@
 use std::path::PathBuf;
-use clap::{AppSettings, Clap, ValueHint};
+use clap::{AppSettings, Clap, ValueHint, ArgSettings};
 use hex::decode_to_slice;
 use crcli::ALGO_LIST;
 use std::io::BufReader;
@@ -21,7 +21,7 @@ struct Opts {
     #[clap(long, conflicts_with = "FILE")]
     hex: Option<String>,
     /// Type of predefined crc function to use
-    #[clap(short = 't', long = "type", possible_values = &ALGO_LIST.iter().map(|x| x.algo_name).collect::<Vec<&str>>())]
+    #[clap(short = 't', long = "type", setting = ArgSettings::IgnoreCase, possible_values = &ALGO_LIST.iter().map(|x| x.algo_name).collect::<Vec<&str>>())]
     crc_type: String,
     /// A level of verbosity, and can be used multiple times
     #[clap(short, long, parse(from_occurrences))]
@@ -38,7 +38,8 @@ fn main() {
         _ => (),
     }
 
-    if let Some(crc) = ALGO_LIST.iter().find(|x| x.algo_name == opts.crc_type) {
+    if let Some(crc) = ALGO_LIST.iter().find(|x| x.algo_name == opts.crc_type.to_uppercase()) {
+        let crc_name = opts.crc_type.to_uppercase();
         let mut crc = (crc.crc_func)();
 
         if let Some(hex) = opts.hex {
@@ -72,10 +73,10 @@ fn main() {
                 if n < chunk_size { break; }
             }
         }
-        println!("CRC:\nHex(LE): 0x{}\nHex(BE): 0x{}", hex::encode(crc.get_crc_vec_le()), hex::encode(crc.get_crc_vec_be()))
-        // println!("CRC:\nDec(LE): {}\nDec(BE): {}\nHex(LE): 0x{}\nHex(BE): 0x{}", u32::from_be_bytes(crc.get_crc_vec_le()), u32::from_be_bytes(crc.get_crc_vec_be()), hex::encode(crc.get_crc_vec_le()), hex::encode(crc.get_crc_vec_be()))
-        // println!("CRC:\nHex(LE): 0x{}\nHex(BE): 0x{}", hex::encode(crc.get_crc_vec_le()), hex::encode(crc.get_crc_vec_be()))
-        // println!("CRC:\nDec(LE): {}\nDec(BE): {}\nHex(LE): 0x{}\nHex(BE): 0x{}", u32::from_be_bytes(crc.get_crc_vec_le()), u32::from_be_bytes(crc.get_crc_vec_be()), hex::encode(crc.get_crc_vec_le()), hex::encode(crc.get_crc_vec_be()))
-        //println!("CRC:\nDec(LE): {}\nHex(LE): {:#04x}", crc.get_crc(), crc.get_crc())
+        println!("{}:", crc_name);
+        println!("Hex(LE): 0x{}", hex::encode(crc.get_crc_vec_le()));
+        println!("Hex(BE): 0x{}", hex::encode(crc.get_crc_vec_be()));
+        println!("Dec(LE): {}", i64::from_str_radix(&hex::encode(crc.get_crc_vec_le()), 16).expect("ERROR"));
+        println!("Dec(BE): {}", i64::from_str_radix(&hex::encode(crc.get_crc_vec_be()), 16).expect("ERROR"))
     }
 }
