@@ -2,6 +2,8 @@ use std::path::PathBuf;
 use clap::{AppSettings, Clap, ValueHint};
 use hex::decode_to_slice;
 use crcli::ALGO_LIST;
+use std::io::BufReader;
+use std::io::Read;
 
 /// This doc string acts as a help message when the user runs '--help'
 /// as do all doc strings on fields
@@ -28,37 +30,52 @@ struct Opts {
 
 fn main() {
     let opts: Opts = Opts::parse();
-    
-    // Gets a value for config if supplied by user, or defaults to "default.conf"
-    println!("{:#?}", opts);
-
-    if let Some(hex) = opts.hex {
-        let mut bytes = vec![0u8; hex.len()/2];
-        println!("Value for config: {} {}", hex, hex.len());
-        decode_to_slice(hex, &mut bytes).unwrap();
-        println!("{:#?}", bytes);
-        calc_crc(&opts.crc_type, bytes)
-    }
-
-    
 
     // Vary the output based on how many times the user used the "verbose" flag
     // (i.e. 'myprog -v -v -v' or 'myprog -vvv' vs 'myprog -v'
     match opts.verbose {
-        0 => println!("No verbose info"),
-        1 => println!("Some verbose info"),
-        2 => println!("Tons of verbose info"),
-        _ => println!("Don't be ridiculous"),
+        2 => println!("{:#?}", opts),
+        _ => (),
     }
-}
 
-fn calc_crc(crc_algo: &str, data: Vec<u8>) {
-    if let Some(crc) = ALGO_LIST.iter().find(|x| x.algo_name == crc_algo) {
+    if let Some(crc) = ALGO_LIST.iter().find(|x| x.algo_name == opts.crc_type) {
         let mut crc = (crc.crc_func)();
-        crc.digest(&data);
-        let crc = crc.get_crc();
-        
-        println!("CRC:\nDec(LE): {}\nDec(BE): {}\nHex(LE): {:#04x}\nHex(BE): {:#04x}", crc, crc.swap_bytes(), crc, crc.swap_bytes())
+
+        if let Some(hex) = opts.hex {
+            let mut bytes = vec![0u8; hex.len()/2];
+
+            match opts.verbose {
+                1 => println!("Value for config: {} {}", hex, hex.len()),
+                _ => (),
+            }
+
+            decode_to_slice(hex, &mut bytes).unwrap();
+            
+            match opts.verbose {
+                2 => println!("{:#?}", bytes),
+                _ => (),
+            }
+
+            crc.digest(&bytes)
+        }
+
+        if let Some(file) = opts.file {
+            let file = std::fs::File::open(file).expect("Cannot open file");
+            let mut buf_reader = BufReader::new(file);
+
+            let chunk_size = 0x4000;
+            loop {
+                let mut chunk = Vec::with_capacity(chunk_size);
+                let n = buf_reader.by_ref().take(chunk_size as u64).read_to_end(&mut chunk).expect("Cannot read file data");
+                crc.digest(&chunk);
+                if n == 0 { break; }
+                if n < chunk_size { break; }
+            }
+        }
+        println!("CRC:\nHex(LE): 0x{}\nHex(BE): 0x{}", hex::encode(crc.get_crc_vec_le()), hex::encode(crc.get_crc_vec_be()))
+        // println!("CRC:\nDec(LE): {}\nDec(BE): {}\nHex(LE): 0x{}\nHex(BE): 0x{}", u32::from_be_bytes(crc.get_crc_vec_le()), u32::from_be_bytes(crc.get_crc_vec_be()), hex::encode(crc.get_crc_vec_le()), hex::encode(crc.get_crc_vec_be()))
+        // println!("CRC:\nHex(LE): 0x{}\nHex(BE): 0x{}", hex::encode(crc.get_crc_vec_le()), hex::encode(crc.get_crc_vec_be()))
+        // println!("CRC:\nDec(LE): {}\nDec(BE): {}\nHex(LE): 0x{}\nHex(BE): 0x{}", u32::from_be_bytes(crc.get_crc_vec_le()), u32::from_be_bytes(crc.get_crc_vec_be()), hex::encode(crc.get_crc_vec_le()), hex::encode(crc.get_crc_vec_be()))
         //println!("CRC:\nDec(LE): {}\nHex(LE): {:#04x}", crc.get_crc(), crc.get_crc())
     }
 }

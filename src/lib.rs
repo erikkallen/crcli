@@ -7,7 +7,7 @@ pub struct CrcType<'a> {
     pub crc_func: CRCFn,
 }
 
-pub const ALGO_LIST: [CrcType; 94] = [
+pub const ALGO_LIST: [CrcType; 97] = [
     CrcType { algo_name: "CRC3_GSM", crc_func: CRC::crc3gsm },
 
     CrcType { algo_name: "CRC4_ITU", crc_func: CRC::crc4itu },
@@ -122,13 +122,13 @@ pub const ALGO_LIST: [CrcType; 94] = [
     // CrcType { algo_name: "CRC32_AIXM", crc_func: CRC:: },
     // CrcType { algo_name: "CRC32_AUTOSAR", crc_func: CRC:: },
     // CrcType { algo_name: "CRC32_BASE91_D", crc_func: CRC:: },
-    // CrcType { algo_name: "CRC32_BZIP2", crc_func: CRC::crc32bzip2 },
+    CrcType { algo_name: "CRC32_BZIP2", crc_func: CRC::crc32bzip2 },
     // CrcType { algo_name: "CRC32_CD_ROM_EDC", crc_func: CRC:: },
-    // CrcType { algo_name: "CRC32_CKSUM", crc_func: CRC:: },
+    CrcType { algo_name: "CRC32_CKSUM", crc_func: CRC::crc32mhash },
     // CrcType { algo_name: "CRC32_ISCSI", crc_func: CRC:: },
     // CrcType { algo_name: "CRC32_ISO_HDLC", crc_func: CRC:: },
     // CrcType { algo_name: "CRC32_JAMCRC", crc_func: CRC:: },
-    // CrcType { algo_name: "CRC32_MPEG_2", crc_func: CRC::crc32mpeg2 },
+    CrcType { algo_name: "CRC32_MPEG_2", crc_func: CRC::crc32mpeg2 },
     // CrcType { algo_name: "CRC32_XFER", crc_func: CRC:: },
 
     // CrcType { algo_name: "CRC64", crc_func: CRC::crc64 },
