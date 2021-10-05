@@ -1,7 +1,9 @@
 # CRcli
 
-[![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](https://github.com/erikkallen/crcli/blob/dev/LICENSE)
-[![Build Status](https://img.shields.io/github/workflow/status/erikkallen/crcli/ci/dev?style=flat-square)](https://github.com/erikkallen/crcli/actions/workflows/ci.yml?query=branch%3Adev)
+[![License](https://img.shields.io/badge/license-MIT-blue?style=flat)](https://github.com/erikkallen/crcli/blob/dev/LICENSE)
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/erikkallen/crcli/Continuous%20integration)
+![GitHub release (latest SemVer including pre-releases)](https://img.shields.io/github/v/release/erikkallen/crcli?include_prereleases)
+![Libraries.io dependency status for GitHub repo](https://img.shields.io/librariesio/github/erikkallen/crcli)
 
 Commandline crc calculator
 
