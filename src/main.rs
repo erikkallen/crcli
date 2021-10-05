@@ -32,7 +32,9 @@ fn main() {
 
     // Vary the output based on how many times the user used the "verbose" flag
     // (i.e. 'myprog -v -v -v' or 'myprog -vvv' vs 'myprog -v'
-    if opts.verbose == 2 { println!("{:#?}", opts) }
+    if opts.verbose == 2 {
+        println!("{:#?}", opts)
+    }
 
     if let Some(crc) = ALGO_LIST
         .iter()
@@ -44,11 +46,15 @@ fn main() {
         if let Some(hex) = opts.hex {
             let mut bytes = vec![0u8; hex.len() / 2];
 
-            if opts.verbose == 1 { println!("Value for config: {} {}", hex, hex.len()) }
+            if opts.verbose == 1 {
+                println!("Value for config: {} {}", hex, hex.len())
+            }
 
             decode_to_slice(hex, &mut bytes).unwrap();
 
-            if opts.verbose == 2 { println!("{:#?}", bytes) }
+            if opts.verbose == 2 {
+                println!("{:#?}", bytes)
+            }
 
             crc.digest(&bytes)
         }
