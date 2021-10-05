@@ -1,7 +1,7 @@
 # CRcli
 
 [![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](https://github.com/erikkallen/crcli/blob/dev/LICENSE)
-[![Build Status](https://img.shields.io/github/workflow/status/erikkallen/crcli/CI/dev?style=flat-square)](https://github.com/erikkallen/crcli/actions/workflows/ci.yml?query=branch%3Adev)
+[![Build Status](https://img.shields.io/github/workflow/status/erikkallen/crcli/ci/dev?style=flat-square)](https://github.com/erikkallen/crcli/actions/workflows/ci.yml?query=branch%3Adev)
 
 Commandline crc calculator
 
