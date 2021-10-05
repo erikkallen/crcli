@@ -1,5 +1,7 @@
 # CRcli
 
+[![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](https://github.com/erikkallen/crcli/blob/dev/LICENSE)
+
 Commandline crc calculator
 
 **Work in progress**
@@ -32,3 +34,14 @@ error[E0658]: arbitrary expressions in key-value attributes are unstable
   |
   = note: see issue #78835 <https://github.com/rust-lang/rust/issues/78835> for more information
 ```
+
+This project relies heavily on the following crates:
+* [crc-any](https://github.com/magiclen/crc-any) by [magiclen](https://github.com/magiclen)
+* [clap](https://github.com/clap-rs/clap) by [Kevin B. Knapp](https://github.com/kbknapp)
+* [rust-hex](https://github.com/KokaKiwi/rust-hex) by [KokaKiwi](https://github.com/KokaKiwi)
+
+## License
+
+`CRcli` is distributed under the terms of the MIT license.
+
+See the [LICENSE](LICENSE) file in this repository for more information.
