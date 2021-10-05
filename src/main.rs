@@ -5,8 +5,7 @@ use crcli::ALGO_LIST;
 use std::io::BufReader;
 use std::io::Read;
 
-/// This doc string acts as a help message when the user runs '--help'
-/// as do all doc strings on fields
+/// This application calculates crc of a file or hex string based on the type of algorithm requested
 #[derive(Clap, Debug)]
 #[clap(version = "v1.0", author = "Erik Kallen, <info@erikkallen.nl>")]
 #[clap(setting = AppSettings::ColoredHelp)]

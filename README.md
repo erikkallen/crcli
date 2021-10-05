@@ -1,10 +1,14 @@
 # CRcli
 
 [![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](https://github.com/erikkallen/crcli/blob/dev/LICENSE)
+[![Build Status](https://img.shields.io/github/workflow/status/erikkallen/crcli/CI/dev?style=flat-square)](https://github.com/erikkallen/crcli/actions/workflows/build.yml?query=branch%3Adev)
 
 Commandline crc calculator
 
-**Work in progress**
+**TODO**
+- [ ] Search for crc algorythm based on crc and file/hex string
+- [ ] Print all possible crc's
+- [ ] Package for debian, redhat and arch
 
 Features:
 
@@ -35,7 +39,7 @@ error[E0658]: arbitrary expressions in key-value attributes are unstable
   = note: see issue #78835 <https://github.com/rust-lang/rust/issues/78835> for more information
 ```
 
-This project relies heavily on the following crates:
+## Thanks to the creators of these awesome crates:
 * [crc-any](https://github.com/magiclen/crc-any) by [magiclen](https://github.com/magiclen)
 * [clap](https://github.com/clap-rs/clap) by [Kevin B. Knapp](https://github.com/kbknapp)
 * [rust-hex](https://github.com/KokaKiwi/rust-hex) by [KokaKiwi](https://github.com/KokaKiwi)
