@@ -1,9 +1,9 @@
-use std::path::PathBuf;
-use clap::{AppSettings, Clap, ValueHint, ArgSettings};
-use hex::decode_to_slice;
+use clap::{AppSettings, ArgSettings, Clap, ValueHint};
 use crcli::ALGO_LIST;
+use hex::decode_to_slice;
 use std::io::BufReader;
 use std::io::Read;
+use std::path::PathBuf;
 
 /// This application calculates crc of a file or hex string based on the type of algorithm requested
 #[derive(Clap, Debug)]
@@ -37,12 +37,15 @@ fn main() {
         _ => (),
     }
 
-    if let Some(crc) = ALGO_LIST.iter().find(|x| x.algo_name == opts.crc_type.to_uppercase()) {
+    if let Some(crc) = ALGO_LIST
+        .iter()
+        .find(|x| x.algo_name == opts.crc_type.to_uppercase())
+    {
         let crc_name = opts.crc_type.to_uppercase();
         let mut crc = (crc.crc_func)();
 
         if let Some(hex) = opts.hex {
-            let mut bytes = vec![0u8; hex.len()/2];
+            let mut bytes = vec![0u8; hex.len() / 2];
 
             match opts.verbose {
                 1 => println!("Value for config: {} {}", hex, hex.len()),
@@ -50,7 +53,7 @@ fn main() {
             }
 
             decode_to_slice(hex, &mut bytes).unwrap();
-            
+
             match opts.verbose {
                 2 => println!("{:#?}", bytes),
                 _ => (),
@@ -66,16 +69,30 @@ fn main() {
             let chunk_size = 0x4000;
             loop {
                 let mut chunk = Vec::with_capacity(chunk_size);
-                let n = buf_reader.by_ref().take(chunk_size as u64).read_to_end(&mut chunk).expect("Cannot read file data");
+                let n = buf_reader
+                    .by_ref()
+                    .take(chunk_size as u64)
+                    .read_to_end(&mut chunk)
+                    .expect("Cannot read file data");
                 crc.digest(&chunk);
-                if n == 0 { break; }
-                if n < chunk_size { break; }
+                if n == 0 {
+                    break;
+                }
+                if n < chunk_size {
+                    break;
+                }
             }
         }
         println!("{}:", crc_name);
         println!("Hex(LE): 0x{}", hex::encode(crc.get_crc_vec_le()));
         println!("Hex(BE): 0x{}", hex::encode(crc.get_crc_vec_be()));
-        println!("Dec(LE): {}", i64::from_str_radix(&hex::encode(crc.get_crc_vec_le()), 16).expect("ERROR"));
-        println!("Dec(BE): {}", i64::from_str_radix(&hex::encode(crc.get_crc_vec_be()), 16).expect("ERROR"))
+        println!(
+            "Dec(LE): {}",
+            i64::from_str_radix(&hex::encode(crc.get_crc_vec_le()), 16).expect("ERROR")
+        );
+        println!(
+            "Dec(BE): {}",
+            i64::from_str_radix(&hex::encode(crc.get_crc_vec_be()), 16).expect("ERROR")
+        )
     }
 }
