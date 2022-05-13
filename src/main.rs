@@ -1,26 +1,25 @@
-use clap::{AppSettings, ArgSettings, Clap, ValueHint};
+use clap::{Parser, ValueHint};
 use crcli::ALGO_LIST;
 use hex::decode_to_slice;
 use std::io::BufReader;
 use std::io::Read;
 use std::path::PathBuf;
-
 /// This application calculates crc of a file or hex string based on the type of algorithm requested
-#[derive(Clap, Debug)]
+#[derive(Parser, Debug)]
 #[clap(version = "v1.0", author = "Erik Kallen, <info@erikkallen.nl>")]
-#[clap(setting = AppSettings::ColoredHelp)]
+
 struct Opts {
     /// File to calculate crc for
     #[clap(name ="FILE", parse(from_os_str), value_hint = ValueHint::FilePath)]
     file: Option<PathBuf>,
     /// The seperator to be used to parse hex string into bytes
-    #[clap(short, long, default_value = " ")]
+    #[clap(short = 's', long, default_value = " ")]
     seperator: String,
     /// Hex string to calculate crc on
     #[clap(long, conflicts_with = "FILE")]
     hex: Option<String>,
     /// Type of predefined crc function to use
-    #[clap(short = 't', long = "type", setting = ArgSettings::IgnoreCase, possible_values = &ALGO_LIST.iter().map(|x| x.algo_name).collect::<Vec<&str>>())]
+    #[clap(short = 't', long = "type", ignore_case = true, possible_values = ALGO_LIST.iter().map(|x| x.algo_name).collect::<Vec<&str>>())]
     crc_type: String,
     /// A level of verbosity, and can be used multiple times
     #[clap(short, long, parse(from_occurrences))]
@@ -44,13 +43,28 @@ fn main() {
         let mut crc = (crc.crc_func)();
 
         if let Some(hex) = opts.hex {
-            let mut bytes = vec![0u8; hex.len() / 2];
+            let split: Vec<String> = hex.split(&opts.seperator).map(str::to_string).collect();
+            let mut hex_string = String::new();
+            for s in split {
+                let s = s.trim();
+                let patterns: &[_] = &['0', 'x'];
+                let result = s.trim_start_matches(patterns);
+                hex_string.push_str(&format!("{:0>2}", result))
+            }
+            let hex_string = hex_string.trim();
+
+            let mut bytes = vec![0u8; hex_string.len() / 2];
 
             if opts.verbose == 1 {
-                println!("Value for config: {} {}", hex, hex.len())
+                println!(
+                    "Value for config: hex[{}] hex len[{}] hex str len[{}]",
+                    hex,
+                    hex.len(),
+                    hex_string.len()
+                )
             }
 
-            decode_to_slice(hex, &mut bytes).unwrap();
+            decode_to_slice(hex_string, &mut bytes as &mut [u8]).unwrap();
 
             if opts.verbose == 2 {
                 println!("{:#?}", bytes)

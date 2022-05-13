@@ -9,7 +9,7 @@ Commandline crc calculator
 
 **TODO**
 - [ ] Search for crc algorythm based on crc and file/hex string
-- [ ] Print all possible crc's
+- [X] Print all possible crc's
 - [ ] Package for debian, redhat and arch
 
 Features:
