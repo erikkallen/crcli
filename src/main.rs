@@ -1,10 +1,10 @@
 use clap::{Parser, ValueHint};
 use crcli::ALGO_LIST;
 use hex::decode_to_slice;
+use std::fmt::Write as _;
 use std::io::BufReader;
 use std::io::Read;
 use std::path::PathBuf;
-use std::fmt::Write as _;
 /// This application calculates crc of a file or hex string based on the type of algorithm requested
 #[derive(Parser, Debug)]
 #[clap(version = "v1.0", author = "Erik Kallen, <info@erikkallen.nl>")]
@@ -50,7 +50,7 @@ fn main() {
                 let s = s.trim();
                 let patterns: &[_] = &['0', 'x'];
                 let result = s.trim_start_matches(patterns);
-                let _ = write!( hex_string, "{:0>2}", result);
+                let _ = write!(hex_string, "{:0>2}", result);
             }
             let hex_string = hex_string.trim();
 
