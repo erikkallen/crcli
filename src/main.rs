@@ -105,7 +105,12 @@ fn main() {
         println!(
             "Dec(BE): {}",
             i64::from_str_radix(&hex::encode(crc.get_crc_vec_be()), 16).expect("ERROR")
-        )
+        );
+
+        if opts.verbose == 2 {
+            println!("Extra info crc:");
+            println!("{:#?}", crc)
+        }
     }
 }
 
