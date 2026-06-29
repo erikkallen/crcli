@@ -1,4 +1,4 @@
-use clap::{Parser, ValueHint};
+use clap::{ArgAction, Parser, ValueHint};
 use crcli::ALGO_LIST;
 use hex::decode_to_slice;
 use std::fmt::Write as _;
@@ -7,24 +7,23 @@ use std::io::Read;
 use std::path::PathBuf;
 /// This application calculates crc of a file or hex string based on the type of algorithm requested
 #[derive(Parser, Debug)]
-#[clap(version = "v1.0", author = "Erik Kallen, <info@erikkallen.nl>")]
-
+#[command(version = "v1.0", author = "Erik Kallen, <info@erikkallen.nl>")]
 struct Opts {
     /// File to calculate crc for
-    #[clap(name ="FILE", parse(from_os_str), value_hint = ValueHint::FilePath)]
+    #[arg(name = "FILE", value_hint = ValueHint::FilePath)]
     file: Option<PathBuf>,
     /// The seperator to be used to parse hex string into bytes
-    #[clap(short = 's', long, default_value = " ")]
+    #[arg(short = 's', long, default_value = " ")]
     seperator: String,
     /// Hex string to calculate crc on
-    #[clap(long, conflicts_with = "FILE")]
+    #[arg(long, conflicts_with = "FILE")]
     hex: Option<String>,
     /// Type of predefined crc function to use
-    #[clap(short = 't', long = "type", ignore_case = true, possible_values = ALGO_LIST.iter().map(|x| x.algo_name).collect::<Vec<&str>>())]
+    #[arg(short = 't', long = "type", ignore_case = true, value_parser = ALGO_LIST.iter().map(|x| x.algo_name).collect::<Vec<&str>>())]
     crc_type: String,
     /// A level of verbosity, and can be used multiple times
-    #[clap(short, long, parse(from_occurrences))]
-    verbose: i32,
+    #[arg(short, long, action = ArgAction::Count)]
+    verbose: u8,
 }
 
 fn main() {

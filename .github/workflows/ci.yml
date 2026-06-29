@@ -11,7 +11,7 @@ jobs:
           - stable
           - beta
           - nightly
-          - 1.60.0  # MSRV
+          - 1.74.0  # MSRV (clap 4.6 requires >= 1.74)
 
     steps:
       - uses: actions/checkout@v2

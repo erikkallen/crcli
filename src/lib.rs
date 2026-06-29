@@ -361,7 +361,7 @@ pub const ALGO_LIST: [CrcType; 101] = [
         crc_func: CRC::crc24flexray_a,
     },
     CrcType {
-        algo_name: "CRC24_FLEXRAY_A",
+        algo_name: "CRC24_FLEXRAY_B",
         crc_func: CRC::crc24flexray_b,
     },
     CrcType {
