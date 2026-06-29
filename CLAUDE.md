@@ -15,7 +15,7 @@ cargo clippy -- -D warnings       # CI gate: lints (warnings are errors)
 cargo run -- -t crc16 file.txt    # run locally
 ```
 
-CI (`.github/workflows/ci.yml`) runs build/test/fmt/clippy across stable, beta, nightly, and MSRV **1.74.0** (bumped from 1.60 for clap 4.6). Keep changes MSRV-compatible. Releases build cross-platform binaries on GitHub release creation (`build.yml`).
+CI (`.github/workflows/ci.yml`) runs build/test/fmt/clippy across stable, beta, nightly, and MSRV **1.85.0** (clap 4.6 requires it; also declared as `rust-version` in `Cargo.toml`). Keep changes MSRV-compatible. Releases build cross-platform binaries on GitHub **release creation** (`build.yml`) — pushing a tag alone does not trigger it; create a GitHub Release.
 
 ## Architecture
 
