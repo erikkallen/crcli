@@ -8,7 +8,7 @@
 Commandline crc calculator
 
 **TODO**
-- [ ] Search for crc algorythm based on crc and file/hex string
+- [X] Search for crc algorythm based on crc and file/hex string
 - [X] Print all possible crc's
 - [ ] Package for debian, redhat and arch
 
@@ -27,6 +27,10 @@ crcli -t crc16_modbus --hex "34 56 34 76"
 
 # CRC a hex string with custom seperator
 crcli -t crc16 --hex "34, 56, 34, 76" -s ", "
+
+# Find which algorithm(s) produce a known CRC (hex or decimal) for given data
+crcli --find 0x7922 --hex "34 56 34 76"
+crcli --find 31010 file.txt
 ```
 
 **NOTE:** This requires a fairly recent version of rust, if you get an error like the one below please update your rust version

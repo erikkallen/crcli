@@ -1,7 +1,5 @@
 use clap::{ArgAction, Parser, ValueHint};
-use crcli::ALGO_LIST;
-use hex::decode_to_slice;
-use std::fmt::Write as _;
+use crcli::{find_matches, hex_to_bytes, ALGO_LIST};
 use std::io::BufReader;
 use std::io::Read;
 use std::path::PathBuf;
@@ -19,11 +17,26 @@ struct Opts {
     #[arg(long, conflicts_with = "FILE")]
     hex: Option<String>,
     /// Type of predefined crc function to use
-    #[arg(short = 't', long = "type", ignore_case = true, value_parser = ALGO_LIST.iter().map(|x| x.algo_name).collect::<Vec<&str>>())]
-    crc_type: String,
+    #[arg(short = 't', long = "type", ignore_case = true, required_unless_present = "find", value_parser = ALGO_LIST.iter().map(|x| x.algo_name).collect::<Vec<&str>>())]
+    crc_type: Option<String>,
+    /// Known CRC value (hex or decimal) to search for across all algorithms
+    #[arg(short = 'f', long, conflicts_with = "crc_type")]
+    find: Option<String>,
     /// A level of verbosity, and can be used multiple times
     #[arg(short, long, action = ArgAction::Count)]
     verbose: u8,
+}
+
+/// Read the input bytes for search mode: from `--hex` or from the file.
+fn read_data(opts: &Opts) -> Vec<u8> {
+    if let Some(hex) = &opts.hex {
+        hex_to_bytes(hex, &opts.seperator)
+    } else if let Some(file) = &opts.file {
+        std::fs::read(file).expect("Cannot read file")
+    } else {
+        eprintln!("Provide a FILE or --hex to search");
+        std::process::exit(1);
+    }
 }
 
 fn main() {
@@ -35,36 +48,40 @@ fn main() {
         println!("{:#?}", opts)
     }
 
+    if let Some(target) = &opts.find {
+        let data = read_data(&opts);
+        let matches = find_matches(&data, target);
+        if matches.is_empty() {
+            println!("No matching CRC algorithm found for {}", target);
+        } else {
+            println!("Possible CRC algorithms for {}:", target);
+            for (name, repr) in matches {
+                println!("  {} ({})", name, repr);
+            }
+        }
+        return;
+    }
+
+    let crc_type = opts.crc_type.clone().expect("crc type is required");
+
     if let Some(crc) = ALGO_LIST
         .iter()
-        .find(|x| x.algo_name == opts.crc_type.to_uppercase())
+        .find(|x| x.algo_name == crc_type.to_uppercase())
     {
-        let crc_name = opts.crc_type.to_uppercase();
+        let crc_name = crc_type.to_uppercase();
         let mut crc = (crc.crc_func)();
 
         if let Some(hex) = opts.hex {
-            let split: Vec<String> = hex.split(&opts.seperator).map(str::to_string).collect();
-            let mut hex_string = String::new();
-            for s in split {
-                let s = s.trim();
-                let patterns: &[_] = &['0', 'x'];
-                let result = s.trim_start_matches(patterns);
-                let _ = write!(hex_string, "{:0>2}", result);
-            }
-            let hex_string = hex_string.trim();
-
-            let mut bytes = vec![0u8; hex_string.len() / 2];
+            let bytes = hex_to_bytes(&hex, &opts.seperator);
 
             if opts.verbose == 1 {
                 println!(
-                    "Value for config: hex[{}] hex len[{}] hex str len[{}]",
+                    "Value for config: hex[{}] hex len[{}] byte len[{}]",
                     hex,
                     hex.len(),
-                    hex_string.len()
+                    bytes.len()
                 )
             }
-
-            decode_to_slice(hex_string, &mut bytes as &mut [u8]).unwrap();
 
             if opts.verbose == 2 {
                 println!("{:#?}", bytes)

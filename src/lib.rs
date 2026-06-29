@@ -1,6 +1,48 @@
 use crc_any::CRC;
+use hex::decode_to_slice;
+use std::fmt::Write as _;
 
 pub type CRCFn = fn() -> CRC;
+
+/// Parse a separated hex string (e.g. "34 56" or "0x34, 0x56") into bytes.
+pub fn hex_to_bytes(hex: &str, separator: &str) -> Vec<u8> {
+    let mut hex_string = String::new();
+    for s in hex.split(separator) {
+        let s = s.trim();
+        let patterns: &[_] = &['0', 'x'];
+        let result = s.trim_start_matches(patterns);
+        let _ = write!(hex_string, "{:0>2}", result);
+    }
+    let hex_string = hex_string.trim();
+    let mut bytes = vec![0u8; hex_string.len() / 2];
+    decode_to_slice(hex_string, &mut bytes as &mut [u8]).unwrap();
+    bytes
+}
+
+/// Brute-force every algorithm in `ALGO_LIST` over `data` and return the ones
+/// whose CRC equals `target` (matched as hex or decimal, against LE and BE).
+/// Each match is `(algo_name, "LE|BE 0x..")`.
+pub fn find_matches(data: &[u8], target: &str) -> Vec<(&'static str, String)> {
+    let t = target.trim().trim_start_matches("0x");
+    let as_hex = u64::from_str_radix(t, 16).ok();
+    let as_dec = t.parse::<u64>().ok();
+
+    let mut matches = Vec::new();
+    for algo in ALGO_LIST.iter() {
+        let mut crc = (algo.crc_func)();
+        crc.digest(data);
+        let le_vec = crc.get_crc_vec_le();
+        let be_vec = crc.get_crc_vec_be();
+        let le = u64::from_str_radix(&hex::encode(&le_vec), 16).unwrap();
+        let be = u64::from_str_radix(&hex::encode(&be_vec), 16).unwrap();
+        if as_hex == Some(le) || as_dec == Some(le) {
+            matches.push((algo.algo_name, format!("LE 0x{}", hex::encode(&le_vec))));
+        } else if as_hex == Some(be) || as_dec == Some(be) {
+            matches.push((algo.algo_name, format!("BE 0x{}", hex::encode(&be_vec))));
+        }
+    }
+    matches
+}
 
 pub struct CrcType<'a> {
     pub algo_name: &'a str,
@@ -423,3 +465,28 @@ pub const ALGO_LIST: [CrcType; 101] = [
     },
     // CrcType { algo_name: "CRC64_XZ", crc_func: CRC:: },
 ];
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn finds_modbus_by_hex_and_dec() {
+        // CRC16_MODBUS of "34 56 34 76" is 0x7922 (LE) == 31010.
+        let data = hex_to_bytes("34 56 34 76", " ");
+        for target in ["0x7922", "7922", "31010"] {
+            let names: Vec<&str> = find_matches(&data, target).iter().map(|m| m.0).collect();
+            assert!(
+                names.contains(&"CRC16_MODBUS"),
+                "{target} should match CRC16_MODBUS, got {names:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn no_match_returns_empty() {
+        let data = hex_to_bytes("34 56 34 76", " ");
+        // Wider than any algo here, so nothing can equal it.
+        assert!(find_matches(&data, "0xffffffffffffffff").is_empty());
+    }
+}
